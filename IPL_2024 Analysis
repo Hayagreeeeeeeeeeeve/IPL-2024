@@ -1,0 +1,65 @@
+install.packages(c("dplyr", "ggplot2", "plotly", "shiny", "readr", "tidyr"))
+library(readr)
+ipl_data <- read_csv(IPL_2024)
+ipl_data <- read_csv("C:\\Users\\Admin\\Documents\\IPL_2024.csv")
+ipl_data
+str(ipl_data)
+summary(ipl_data)
+head(ipl_data)
+library(dplyr)
+ipl_data <- ipl_data %>%
+ filter(!is.na(player), !is.na(Runs))
+ filter(!is.na(Player), !is.na(Runs))
+ filter(!is.na(Runs))
+library(dplyr)
+ipl_data <- ipl_data %>%
+    filter(!is.na(player_name), !is.na(runs), !is.na(team))
+    filter(!is.na(player_name))
+    filter(!is.na(Player))
+library(dplyr)
+ipl_data <- ipl_data %>%
+    filter(!is.na(player_name), !is.na(runs), !is.na(team))
+library(dplyr)
+ipl_data <- ipl_data %>%
+    filter(!is.na(Player))
+    filter(!is.na(Player),!is.na(Runs))
+library(dplyr)
+ipl_data <- ipl_data %>%
+    filter(!is.na(Player), !is.na(Runs))
+top_batsmen <- ipl_data %>%
+    group_by(Player) %>%
+    summarize(total_runs = sum(Runs)) %>%
+    arrange(desc(total_runs)) %>%
+    head(10)
+top_batsmen
+library(ggplot2)
+ggplot(top_batsmen, aes(x = reorder(Player, total_runs), y = total_runs)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    coord_flip() +
+    labs(title = "Top 10 IPL Batsmen by Runs", x = "Player", y = "Runs")
+library(plotly)
+ggplotly()
+library(shiny)
+library(ggplot2)
+library(plotly)
+ui <- fluidPage(
+    titlePanel("IPL Performance Dashboard"),
+    sidebarLayout(
+        sidebarPanel(
+            selectInput("team", "Select Team:", unique(ipl_data$team)),
+            selectInput("metric", "Select Metric:", c("Runs", "Wickets", "Strike Rate"))
+        ),
+        mainPanel(
+            plotlyOutput("team_plot")
+        )
+    )
+)
+server <- function(input, output) {
+    output$team_plot <- renderPlotly({
+        team_data <- ipl_data %>% filter(team == input$team)
+        ggplot(team_data, aes(x = player_name, y = get(tolower(input$metric)))) +
+            geom_bar(stat = "identity") +
+            theme_minimal()
+    })
+}
+shinyApp(ui, server)
